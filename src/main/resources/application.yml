@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: ticket-booking-distributed-lock-poc
+
+  # H2 in-memory DB — Variant 1 default
+  datasource:
+    url: jdbc:h2:mem:ticketdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# Redisson single-node config for Variant 1
+# The redisson-spring-boot-starter picks up src/main/resources/redisson.yml automatically
+# (see redisson.yml below)
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

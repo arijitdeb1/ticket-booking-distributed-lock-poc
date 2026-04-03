@@ -1,0 +1,13 @@
+# Variant 2 profile — Redlock (multi Redis nodes)
+# Activated via: -Dspring.profiles.active=redlock or Maven profile -Predlock
+# Redisson config for Variant 2 should be placed in redisson-redlock.yml (loaded via custom config bean)
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ticketdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update

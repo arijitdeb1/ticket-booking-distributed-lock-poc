@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+
+  # --- Variant 1: single Redis node ---
+  redis:
+    image: redis:7-alpine
+    container_name: redis-single
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- Variant 2 (future): three Redis nodes for Redlock ---
+  # Uncomment when implementing Variant 2
+  # redis-1:
+  #   image: redis:7-alpine
+  #   container_name: redis-node-1
+  #   ports:
+  #     - "6380:6379"
+  # redis-2:
+  #   image: redis:7-alpine
+  #   container_name: redis-node-2
+  #   ports:
+  #     - "6381:6379"
+  # redis-3:
+  #   image: redis:7-alpine
+  #   container_name: redis-node-3
+  #   ports:
+  #     - "6382:6379"
