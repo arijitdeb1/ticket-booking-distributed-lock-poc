@@ -14,11 +14,9 @@
 
 ### Step 1: Start Redis via Docker
 
-```bash
-docker-compose up -d redis
-```
-docker run -d --name redis -p 6379:6379 -v C:/project/redis/redis.conf:/usr/local/etc/redis/redis.conf redis:7 redis-server /usr/local/etc/redis/redis.conf
+**1a. Create the Redis config file** at `C:/project/redis/redis.conf`:
 
+```conf
 # Allow Redis to listen on all interfaces
 bind 0.0.0.0
 
@@ -33,11 +31,23 @@ port 6379
 
 # Optional: Append-only persistence
 appendonly yes
+```
 
-Verify:
+**1b. Start the Redis container:**
+
+```bash
+docker run -d \
+  --name redis \
+  -p 6379:6379 \
+  -v C:/project/redis/redis.conf:/usr/local/etc/redis/redis.conf \
+  redis:7 redis-server /usr/local/etc/redis/redis.conf
+```
+
+**1c. Verify:**
+
 ```bash
 docker ps
-docker exec redis-single redis-cli ping   # → PONG
+docker exec redis redis-cli ping   # → PONG
 ```
 
 ### Step 2: Build the project
@@ -130,7 +140,7 @@ Only one request should return `BOOKED`; all others return `ALREADY_BOOKED` or `
 
 ## Variant 2 — Redlock (Multi Redis) [Future]
 
-1. Uncomment the three Redis services in `docker-compose.yml`.
+1. Run three Redis containers on ports `6380`, `6381`, `6382` using `docker run` (same pattern as Step 1, with different `--name` and `-p` values).
 2. Activate Spring profile `redlock`:
    ```bash
    mvn spring-boot:run -Dspring-boot.run.profiles=redlock
@@ -147,7 +157,7 @@ Only one request should return `BOOKED`; all others return `ALREADY_BOOKED` or `
 | `src/main/resources/application.yml` | App config, H2 datasource, JPA |
 | `src/main/resources/redisson.yml` | Redisson single-node config (auto-loaded by starter) |
 | `src/main/resources/application-redlock.yml` | Overrides for Variant 2 (PostgreSQL + multi-Redis) |
-| `docker-compose.yml` | Redis containers |
+| `C:/project/redis/redis.conf` | Redis config (bind, port, persistence) |
 
 ---
 

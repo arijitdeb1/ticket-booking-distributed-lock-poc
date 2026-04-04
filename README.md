@@ -11,6 +11,17 @@ It implements two approaches:
 
 ---
 
+## 🛠️ Getting Started
+
+To run this project locally, refer to **[SETUP.md](SETUP.md)** for step-by-step instructions covering:
+
+* Starting Redis via Docker
+* Building and running the Spring Boot application
+* Testing the API (booking + payment flows)
+* Simulating concurrent requests
+
+---
+
 ## 💡 Problem Statement
 
 In real-world systems (like Ticketmaster), multiple users or retries can attempt to book the **same seat simultaneously**, leading to:
@@ -52,6 +63,12 @@ This POC combines:
 ## 🧪 Use Case
 
 > Simulate multiple users trying to book the same ticket → only one succeeds, others fail gracefully.
+
+---
+
+## 🔄 Booking & Payment Flow
+
+For a detailed walkthrough of how a booking request moves through the system — lock acquisition, seat reservation, payment processing, lease renewal, and idempotency — see **[BOOKING_AND_PAYMENT_FLOW.md](BOOKING_AND_PAYMENT_FLOW.md)**.
 
 ---
 
