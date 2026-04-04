@@ -20,6 +20,16 @@ public interface DistributedLockService {
     boolean tryLock(String lockKey, long leaseTime, TimeUnit unit);
 
     /**
+     * Renew (extend) the lease of an already-held lock by re-acquiring it
+     * with a fresh leaseTime. Only works if the current thread holds the lock.
+     *
+     * @param lockKey   lock identifier
+     * @param leaseTime new lease duration from now
+     * @param unit      time unit for leaseTime
+     */
+    void renewLease(String lockKey, long leaseTime, TimeUnit unit);
+
+    /**
      * Release the lock for the given key.
      */
     void unlock(String lockKey);
