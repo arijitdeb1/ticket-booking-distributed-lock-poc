@@ -11,6 +11,6 @@ public class BookingResponse {
     private String eventId;
     private String seatId;
     private String userId;
-    private String status;   // BOOKED | ALREADY_BOOKED | DUPLICATE_REQUEST
+    private String status;   // PAYMENT_PENDING | BOOKED | ALREADY_BOOKED | LOCK_UNAVAILABLE | PAYMENT_FAILED | NOT_FOUND | VALIDATION_ERROR | ERROR
     private String message;
 }
