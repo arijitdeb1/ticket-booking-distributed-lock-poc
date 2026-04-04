@@ -41,6 +41,18 @@ public class RedissonLockService implements DistributedLockService {
     }
 
     @Override
+    public void renewLease(String lockKey, long leaseTime, TimeUnit unit) {
+        RLock lock = redissonClient.getLock(lockKey);
+        if (lock.isHeldByCurrentThread()) {
+            // Reentrant call — resets the TTL to a fresh leaseTime from now
+            lock.lock(leaseTime, unit);
+            log.info("Lock lease renewed: key={}, newLease={} {}", lockKey, leaseTime, unit);
+        } else {
+            log.warn("Cannot renew lease — lock not held by current thread: {}", lockKey);
+        }
+    }
+
+    @Override
     public void unlock(String lockKey) {
         RLock lock = redissonClient.getLock(lockKey);
         if (lock.isHeldByCurrentThread()) {
