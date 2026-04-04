@@ -17,6 +17,22 @@
 ```bash
 docker-compose up -d redis
 ```
+docker run -d --name redis -p 6379:6379 -v C:/project/redis/redis.conf:/usr/local/etc/redis/redis.conf redis:7 redis-server /usr/local/etc/redis/redis.conf
+
+# Allow Redis to listen on all interfaces
+bind 0.0.0.0
+
+# Disable protected mode (needed if no auth and external access)
+protected-mode no
+
+# Default Redis port
+port 6379
+
+# Optional: Set a password (highly recommended)
+#requirepass yourStrongPasswordHere
+
+# Optional: Append-only persistence
+appendonly yes
 
 Verify:
 ```bash
