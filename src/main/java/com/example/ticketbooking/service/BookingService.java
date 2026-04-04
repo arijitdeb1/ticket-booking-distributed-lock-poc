@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class BookingService {
 
     private static final String LOCK_PREFIX = "ticket:lock:";
-    private static final long LOCK_LEASE_SECONDS = 10;
+    private static final long LOCK_LEASE_SECONDS = 30;
 
     private final TicketRepository ticketRepository;
     private final IdempotencyRepository idempotencyRepository;
@@ -62,12 +62,12 @@ public class BookingService {
                 throw new SeatAlreadyBookedException(request.getEventId(), request.getSeatId());
             }
 
-            // 3. Book the ticket
+            // 3. Save ticket as PAYMENT_PENDING — payment is handled via POST /api/payment
             Ticket ticket = Ticket.builder()
                     .eventId(request.getEventId())
                     .seatId(request.getSeatId())
                     .userId(request.getUserId())
-                    .status(Ticket.TicketStatus.BOOKED)
+                    .status(Ticket.TicketStatus.PAYMENT_PENDING)
                     .build();
             ticketRepository.save(ticket);
 
@@ -76,8 +76,8 @@ public class BookingService {
                     .eventId(request.getEventId())
                     .seatId(request.getSeatId())
                     .userId(request.getUserId())
-                    .status("BOOKED")
-                    .message("Ticket successfully booked.")
+                    .status("PAYMENT_PENDING")
+                    .message("Seat reserved. Proceed to POST /api/payment to complete booking.")
                     .build();
 
             // 4. Persist idempotency record
