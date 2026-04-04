@@ -33,6 +33,6 @@ public class Ticket {
     private TicketStatus status;
 
     public enum TicketStatus {
-        BOOKED, CANCELLED
+        PAYMENT_PENDING, BOOKED, CANCELLED
     }
 }
