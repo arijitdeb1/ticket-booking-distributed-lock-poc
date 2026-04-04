@@ -64,14 +64,37 @@ curl -X POST http://localhost:8080/api/book \
   }'
 ```
 
-**Expected responses:**
+**Expected responses (booking):**
 
 | Scenario | `status` field |
 |----------|---------------|
-| First booking | `BOOKED` |
+| First booking | `PAYMENT_PENDING` |
 | Same seat, different requestId | `ALREADY_BOOKED` |
-| Same requestId (retry) | `BOOKED` (cached — idempotent) |
+| Same requestId (retry) | Cached original response (idempotent) |
 | Lock contention | `LOCK_UNAVAILABLE` |
+
+**Process payment (after booking returns `PAYMENT_PENDING`):**
+```bash
+curl -X POST http://localhost:8080/api/payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "eventId": "E1",
+    "seatId": "S1",
+    "requestId": "550e8400-e29b-41d4-a716-446655440000"
+  }'
+```
+
+**Expected responses (payment):**
+
+| Scenario | `status` field |
+|----------|---------------|
+| Payment successful | `BOOKED` |
+| No prior booking found | `NOT_FOUND` |
+| Already paid | `ALREADY_BOOKED` |
+| Lock contention during payment | `LOCK_UNAVAILABLE` |
+| Payment interrupted | `PAYMENT_FAILED` |
+
+> **Note:** Payment simulates a 40s gateway call under a 30s lock lease. The service automatically extends the lease at 28s using reentrant `RLock.lock()`. Watch the application logs for `Payment started`, `renewing lock`, and `Payment simulation completed` messages.
 
 ### Step 6: Simulate concurrent requests (optional)
 
@@ -115,9 +138,18 @@ Only one request should return `BOOKED`; all others return `ALREADY_BOOKED` or `
 ## Lock Design
 
 - **Lock key format:** `ticket:lock:{eventId}:{seatId}`
-- **Lease time:** 10 seconds (prevents deadlock if app crashes)
+- **Lease time:** 30 seconds (prevents deadlock if app crashes)
 - **Wait time:** 0 ms (fail-fast; no queuing)
 - **Idempotency key:** `requestId` (UUID) stored in `idempotency` table
+
+---
+
+## Payment Simulation
+
+- **Sleep duration:** 40s (intentionally exceeds the 30s lease)
+- **Lease renewal:** At 28s the service calls `renewLease()` (reentrant `RLock.lock(30s)`) to reset the TTL
+- **Timeline:** `0s → sleep 28s → renew lock (+30s) → sleep remaining 12s → BOOKED`
+- If sleep fits within lease, no renewal is needed
 
 ---
 
